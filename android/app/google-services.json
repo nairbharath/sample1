@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1042360767076",
+    "project_id": "mentor-mind-235df",
+    "storage_bucket": "mentor-mind-235df.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1042360767076:android:d6ae0c569b4f2732bd8571",
+        "android_client_info": {
+          "package_name": "com.example.mentor_mind"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1042360767076-gi4rcc38ihmdv1kcjfjb1bl0gca64bhj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDk4kDagPRiSRzpcBKVO8UasMZIYb3PDhI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1042360767076-gi4rcc38ihmdv1kcjfjb1bl0gca64bhj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
