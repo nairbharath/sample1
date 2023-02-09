@@ -119,13 +119,13 @@ class _DescriptionState extends State<Description> {
         ),
       ),
       bottomNavigationBar: Container(
-        height: 30,
+        height: 50,
         width: double.infinity,
         color: Colors.transparent,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            CategoryBox(name: 'Message'),
+            // CategoryBox(name: 'Message'),
             GestureDetector(
               onTap: () {
                 applyToTeach();

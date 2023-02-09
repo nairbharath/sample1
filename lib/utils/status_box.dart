@@ -74,7 +74,7 @@ class ApplicationStatusViewBox extends StatelessWidget {
                                       style: TextStyle(
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    Text(dSnap['title']),
+                                    Text(dSnap['topic']),
                                   ],
                                 ),
                               ),

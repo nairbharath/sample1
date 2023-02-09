@@ -30,6 +30,10 @@ class GetRequestBoxData extends StatelessWidget {
             Map<String, dynamic> snap =
                 snapshot.data!.data() as Map<String, dynamic>;
 
+            print("got data");
+            print(snap);
+            print("got data");
+
             return RequestBoxWithEdit(
               dSnap: snap,
               col: Colors.primaries[Random().nextInt(

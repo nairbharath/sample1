@@ -137,17 +137,17 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(
             height: 10,
           ),
-          Row(
-            children: [
-              Expanded(
-                child: SearchBar(placehold: "Search.."),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Icon(Icons.filter_alt_sharp),
-            ],
-          ),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: SearchBar(placehold: "Search.."),
+          //     ),
+          //     SizedBox(
+          //       width: 10,
+          //     ),
+          //     Icon(Icons.filter_alt_sharp),
+          //   ],
+          // ),
           const SizedBox(
             height: 10,
           ),

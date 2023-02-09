@@ -23,7 +23,9 @@ class _RequestPageState extends State<RequestPage> {
     final user = FirebaseAuth.instance.currentUser!;
     String requestID = const Uuid().v1();
     Request request = Request(
-      topic: _selectedSubject,
+      topic: _selectedSubject == 'Others'
+          ? _topicController.text
+          : _selectedSubject,
       description: _noteController.text,
       uid: user.uid,
       subject: 'Physics',
