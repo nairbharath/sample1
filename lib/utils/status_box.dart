@@ -1,14 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mentor_mind/screens/applications.dart';
 import 'package:mentor_mind/screens/mentor_profile.dart';
 import 'package:mentor_mind/screens/requested_applicants.dart';
-import 'package:mentor_mind/screens/update.dart';
 import 'package:mentor_mind/utils/category_box_inside_req.dart';
 
 class ApplicationStatusViewBox extends StatelessWidget {
   ApplicationStatusViewBox({super.key, required this.col, required this.dSnap});
   final user = FirebaseAuth.instance.currentUser!;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Color col;
   var dSnap;
 
@@ -150,13 +152,30 @@ class ApplicationStatusViewBox extends StatelessWidget {
             top: 0,
             right: 0,
             child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return UpdateRequestDetails();
+              onTap: () async {
+                print("fired");
+                try {
+                  await _firestore
+                      .collection('requests')
+                      .doc(dSnap['requestID'])
+                      .delete();
+                } catch (e) {
+                  print("failed");
+                  print(e.toString());
+                }
+                try {
+                  await _firestore.collection('users').doc(user.uid).update(
+                    {
+                      'applied': FieldValue.arrayRemove([dSnap['requestID']]),
                     },
+                  );
+                } catch (e) {
+                  print("fail");
+                  print(e.toString());
+                }
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (_) => PersonalApplicationsView(),
                   ),
                 );
               },

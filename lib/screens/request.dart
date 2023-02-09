@@ -62,6 +62,7 @@ class _RequestPageState extends State<RequestPage> {
   final _amountController = TextEditingController();
   var _selectedSubject = '';
   bool _isOther = false;
+  int _selected = DateTime.now().day;
   List<String> _subjects = [
     'Maths',
     'Physics',
@@ -118,16 +119,16 @@ class _RequestPageState extends State<RequestPage> {
               currentDateTime = currentMonthList[index];
               date = (index + 1);
               print(date);
+              _selected = date - 1;
             });
           },
           child: Container(
             width: 80,
             height: 140,
             decoration: BoxDecoration(
-              border:
-                  // index == date
-                  // ?
-                  Border.all(color: Color(0xFFC31DC7)),
+              border: index == _selected
+                  ? Border.all(color: Color(0xFFC31DC7))
+                  : Border.all(color: Color.fromARGB(255, 71, 69, 71)),
               // :
               // Border.all(color: Color(0xFF1F2029)),
               gradient: LinearGradient(

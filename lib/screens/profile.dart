@@ -8,6 +8,7 @@ import 'package:mentor_mind/auth/auth_methods.dart';
 import 'package:mentor_mind/auth/login_page.dart';
 import 'package:mentor_mind/screens/applications.dart';
 import 'package:mentor_mind/screens/mentor_profile.dart';
+import 'package:mentor_mind/screens/profilePage.dart';
 import 'package:mentor_mind/screens/requests.dart';
 import 'package:wiredash/wiredash.dart';
 
@@ -52,12 +53,12 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.black,
         elevation: 0,
         title: Text(
           '$name',
           style: const TextStyle(
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
       ),
@@ -66,66 +67,68 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (!user.isAnonymous) {
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      ProfilePic(
-                        name: name,
-                      ),
-                      const SizedBox(height: 20.0),
-                      ProfileMenu(
-                        press: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => MentorProfile(
-                                mentorID: '123',
+                return Scaffold(
+                  backgroundColor: Colors.black,
+                  body: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ProfilePic(
+                          name: name,
+                        ),
+                        const SizedBox(height: 20.0),
+                        ProfileMenu(
+                          press: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePageNew(),
                               ),
-                            ),
-                          );
-                        },
-                        menuText: 'Account Settings',
-                        icon: CupertinoIcons.person_crop_circle,
-                      ),
-                      ProfileMenu(
-                        press: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  PersonalApplicationsView()));
-                        },
-                        menuText: "Applications",
-                        icon: CupertinoIcons.doc_on_clipboard,
-                      ),
-                      ProfileMenu(
-                        press: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => PersonalRequestsView(),
-                            ),
-                          );
-                        },
-                        menuText: "Requests",
-                        icon: CupertinoIcons.arrow_left_right_circle,
-                      ),
-                      ProfileMenu(
-                        press: () {},
-                        menuText: "Settings",
-                        icon: CupertinoIcons.settings,
-                      ),
-                      ProfileMenu(
-                        press: () {
-                          signOutUser();
-                        },
-                        menuText: "Log Out",
-                        icon: CupertinoIcons.lock_circle,
-                      ),
-                      ProfileMenu(
-                        press: () {
-                          Wiredash.of(context).show(inheritMaterialTheme: true);
-                        },
-                        menuText: "Help Center",
-                        icon: CupertinoIcons.person_2,
-                      ),
-                    ],
+                            );
+                          },
+                          menuText: 'Account Settings',
+                          icon: CupertinoIcons.person_crop_circle,
+                        ),
+                        ProfileMenu(
+                          press: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    PersonalApplicationsView()));
+                          },
+                          menuText: "Applications",
+                          icon: CupertinoIcons.doc_on_clipboard,
+                        ),
+                        ProfileMenu(
+                          press: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => PersonalRequestsView(),
+                              ),
+                            );
+                          },
+                          menuText: "Requests",
+                          icon: CupertinoIcons.arrow_left_right_circle,
+                        ),
+                        ProfileMenu(
+                          press: () {},
+                          menuText: "Settings",
+                          icon: CupertinoIcons.settings,
+                        ),
+                        ProfileMenu(
+                          press: () {
+                            signOutUser();
+                          },
+                          menuText: "Log Out",
+                          icon: CupertinoIcons.lock_circle,
+                        ),
+                        ProfileMenu(
+                          press: () {
+                            Wiredash.of(context)
+                                .show(inheritMaterialTheme: true);
+                          },
+                          menuText: "Help Center",
+                          icon: CupertinoIcons.person_2,
+                        ),
+                      ],
+                    ),
                   ),
                 );
               } else {

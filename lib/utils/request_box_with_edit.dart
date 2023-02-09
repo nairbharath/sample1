@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:mentor_mind/screens/mentor_profile.dart';
 import 'package:mentor_mind/screens/requested_applicants.dart';
 import 'package:mentor_mind/screens/update.dart';
