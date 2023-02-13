@@ -29,18 +29,10 @@ class _RequestSliderState extends State<RequestSlider> {
         .then((value) => value.docs.forEach((element) {
               requests.add(element);
             }));
-    requests.forEach((element) {
-      print(element.data());
-    });
   }
 
   Future _handleRefresh() async {
     return await Future.delayed(Duration(seconds: 2));
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
@@ -53,41 +45,22 @@ class _RequestSliderState extends State<RequestSlider> {
             child:
                 LoadingAnimationWidget.waveDots(color: Colors.white, size: 40),
           );
-        }
-
-        return Expanded(
-          child: LiquidPullToRefresh(
-            onRefresh: _handleRefresh,
-            color: Color(0xFFC31DC7),
-            child: ListView.builder(
-              physics: BouncingScrollPhysics(),
-              itemCount: requests.length,
-              itemBuilder: (BuildContext context, int index) {
-                print("Iam " + widget.selectedTopic);
-                if (widget.selectedTopic == '' ||
-                    widget.selectedTopic.toLowerCase() == 'All'.toLowerCase()) {
-                  print("all are printed");
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => Description(
-                            dSnap: requests[index],
-                          ),
-                        ),
-                      );
-                    },
-                    child: RequestBox(
-                      dSnap: requests[index],
-                      col: Colors.primaries[Random().nextInt(
-                        Colors.primaries.length,
-                      )],
-                    ),
-                  );
-                } else {
-                  if (requests[index]['topic'].toString().toLowerCase() ==
-                      widget.selectedTopic.toLowerCase()) {
-                    print("selected are printed");
+        } else {
+          if (snapshot.connectionState == ConnectionState.done) {
+            requests.forEach((element) {
+              print('---- ' + element['topic']);
+            });
+            return Expanded(
+              child: ListView.builder(
+                physics: BouncingScrollPhysics(),
+                itemCount: requests.length,
+                itemBuilder: (BuildContext context, int index) {
+                  print(widget.selectedTopic.toLowerCase() +
+                      " with " +
+                      requests[index]['topic'].toString().toLowerCase());
+                  if (widget.selectedTopic == '' ||
+                      widget.selectedTopic.toLowerCase() ==
+                          'All'.toLowerCase()) {
                     return GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
@@ -105,12 +78,34 @@ class _RequestSliderState extends State<RequestSlider> {
                         )],
                       ),
                     );
+                  } else {
+                    if (requests[index]['topic'].toString().toLowerCase() ==
+                        widget.selectedTopic.toLowerCase()) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => Description(
+                                dSnap: requests[index],
+                              ),
+                            ),
+                          );
+                        },
+                        child: RequestBox(
+                          dSnap: requests[index],
+                          col: Colors.primaries[Random().nextInt(
+                            Colors.primaries.length,
+                          )],
+                        ),
+                      );
+                    }
                   }
-                }
-              },
-            ),
-          ),
-        );
+                },
+              ),
+            );
+          }
+        }
+        return Container();
       }),
     );
   }

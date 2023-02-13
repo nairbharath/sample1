@@ -21,20 +21,7 @@ class Personal_RequestsViewState extends State<PersonalRequestsView> {
     await _firestore.collection('users').doc(user.uid).get().then((doc) {
       requestIDsOfUser = doc.data()!['requests'];
     });
-    print("got first part....---------------------");
-    print(requestIDsOfUser);
   }
-
-  // Future getDataOfRequests() async {
-  //   // await getDataOfRequests();
-  //   for (var x in requestIDsOfUser) {
-  //     await _firestore.collection('requesets').doc(x).get().then((value) {
-  //       DataOfRequests.add(value);
-  //     });
-  //   }
-  //   print("xxxxxxxxxxxxxxxxxxxxxxxx");
-  //   print(DataOfRequests);
-  // }
 
   Future _handleRefresh() async {
     return await Future.delayed(Duration(seconds: 2));

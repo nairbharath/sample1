@@ -3,7 +3,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 
 class SenderBox extends StatelessWidget {
-  const SenderBox({super.key});
+  SenderBox({super.key, required this.message});
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -18,18 +19,24 @@ class SenderBox extends StatelessWidget {
         SizedBox(
           width: 10,
         ),
-        Container(
-          margin: EdgeInsets.only(top: 10),
-          decoration: BoxDecoration(
-              color: Color(0xFF3a3f54),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-                topRight: Radius.circular(20),
+        Flexible(
+          child: Container(
+            width: 200,
+            margin: EdgeInsets.only(top: 10),
+            decoration: BoxDecoration(
+                color: Color(0xFF3a3f54),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                )),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Center(
+                  child: Text(
+                message,
               )),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Center(child: Text('Hi how are you?')),
+            ),
           ),
         ),
       ],

@@ -3,25 +3,29 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 
 class RecieverBox extends StatelessWidget {
-  const RecieverBox({super.key});
+  RecieverBox({super.key, required this.message});
+  final String message;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Container(
-          margin: EdgeInsets.only(top: 10),
-          decoration: BoxDecoration(
-              color: Color(0xFF6a65ff),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-                topLeft: Radius.circular(20),
-              )),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Center(child: Text('Hi how are you?')),
+        Flexible(
+          child: Container(
+            width: 200,
+            margin: EdgeInsets.only(top: 10),
+            decoration: BoxDecoration(
+                color: Color(0xFF6a65ff),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                  topLeft: Radius.circular(20),
+                )),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Center(child: Text(message)),
+            ),
           ),
         ),
         SizedBox(

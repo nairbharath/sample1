@@ -37,14 +37,6 @@ class _DescriptionState extends State<Description> {
       print(e.toString());
     }
 
-    // try {
-    //   await _firestore.collection('requests').doc(dSnap['requestID']).update({
-    //     'applicants': FieldValue.arrayUnion([user.uid]),
-    //   });
-    // } catch (e) {
-    //   print(e.toString());
-    // }
-
     try {
       await _firestore
           .collection('requests')
@@ -57,22 +49,6 @@ class _DescriptionState extends State<Description> {
     } catch (e) {
       print(e.toString());
     }
-
-    // FirebaseFirestore firestore = FirebaseFirestore.instance;
-    // DocumentReference documentReference =
-    //     firestore.collection('requests').doc(dSnap['requestID']);
-    // await firestore.runTransaction((Transaction transaction) async {
-    //   DocumentSnapshot snapshot = await transaction.get(documentReference);
-    //   if (snapshot.exists) {
-    //     List<dynamic> applicants = snapshot['applicants'] ?? [];
-    //     applicants.add(user.uid);
-    //     transaction.update(documentReference, {
-    //       'applications': FieldValue.arrayUnion([
-    //         {"applicants": applicants}
-    //       ])
-    //     });
-    //   }
-    // });
   }
 
   @override

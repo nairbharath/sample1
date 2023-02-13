@@ -78,11 +78,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 20.0),
                         ProfileMenu(
                           press: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ProfilePageNew(),
-                              ),
-                            );
+                            // Navigator.of(context).push(
+                            //   MaterialPageRoute(
+                            //     builder: (context) => ProfilePageNew(),
+                            //   ),
+                            // );
                           },
                           menuText: 'Account Settings',
                           icon: CupertinoIcons.person_crop_circle,

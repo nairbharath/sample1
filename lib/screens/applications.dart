@@ -23,20 +23,7 @@ class Personal_ApplicationsViewState extends State<PersonalApplicationsView> {
     await _firestore.collection('users').doc(user.uid).get().then((doc) {
       appliedIDsOfUser = doc.data()!['applied'];
     });
-    print("got first part....---------------------");
-    print(appliedIDsOfUser);
   }
-
-  // Future getDataOfRequests() async {
-  //   // await getDataOfRequests();
-  //   for (var x in appliedIDsOfUser) {
-  //     await _firestore.collection('requesets').doc(x).get().then((value) {
-  //       DataOfRequests.add(value);
-  //     });
-  //   }
-  //   print("xxxxxxxxxxxxxxxxxxxxxxxx");
-  //   print(DataOfRequests);
-  // }
 
   Future _handleRefresh() async {
     return await Future.delayed(Duration(seconds: 2));

@@ -51,7 +51,12 @@ class AuthMethods {
   }
 
   Future<void> signOut() async {
+    final user = FirebaseAuth.instance.currentUser!;
     await _auth.signOut();
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .update({"status": "offline"});
   }
 
   Future<void> likePost(String postId, String uid, List likes) async {
@@ -88,9 +93,7 @@ class AuthMethods {
           .update({
         'subEventList': FieldValue.arrayUnion([subEventId]),
       });
-    } catch (e) {
-      print(e.toString());
-    }
+    } catch (e) {}
   }
 
   Future<void> resetPassword(String email) async {

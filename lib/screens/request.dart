@@ -11,7 +11,8 @@ import 'package:uuid/uuid.dart';
 import '../utils/date_utils.dart' as date_util;
 
 class RequestPage extends StatefulWidget {
-  const RequestPage({Key? key}) : super(key: key);
+  RequestPage({Key? key, required this.subjects});
+  List<String> subjects;
 
   @override
   State<RequestPage> createState() => _RequestPageState();
@@ -30,7 +31,7 @@ class _RequestPageState extends State<RequestPage> {
       uid: user.uid,
       subject: 'Physics',
       date: date.toString(),
-      type: 'Theory',
+      type: selectedRadioButton,
       amount: _amountController.text,
       requestID: requestID,
       datetime: DateTime.now(),
@@ -52,6 +53,7 @@ class _RequestPageState extends State<RequestPage> {
   }
 
   int date = DateTime.now().day;
+
   double width = 0.0;
   double height = 0.0;
   late ScrollController scrollController;
@@ -61,19 +63,14 @@ class _RequestPageState extends State<RequestPage> {
   final _noteController = TextEditingController();
   final _amountController = TextEditingController();
   var _selectedSubject = '';
+  String selectedRadioButton = 'Theory';
   bool _isOther = false;
   int _selected = DateTime.now().day;
-  List<String> _subjects = [
-    'Maths',
-    'Physics',
-    'ML',
-    'Deep Learning',
-    'Industrial Biology',
-    'Others'
-  ];
 
   @override
   void initState() {
+    widget.subjects.add('Others');
+    widget.subjects.remove('All');
     currentMonthList = date_util.DateUtils.daysInMonth(currentDateTime);
     currentMonthList.sort((a, b) => a.day.compareTo(b.day));
     currentMonthList = currentMonthList.toSet().toList();
@@ -118,7 +115,6 @@ class _RequestPageState extends State<RequestPage> {
             setState(() {
               currentDateTime = currentMonthList[index];
               date = (index + 1);
-              print(date);
               _selected = date - 1;
             });
           },
@@ -216,7 +212,7 @@ class _RequestPageState extends State<RequestPage> {
                             showSearchBox: true,
                             showSelectedItems: true,
                           ),
-                          items: _subjects,
+                          items: widget.subjects,
                           dropdownDecoratorProps: DropDownDecoratorProps(
                             dropdownSearchDecoration: InputDecoration(
                               border: OutlineInputBorder(
@@ -242,9 +238,8 @@ class _RequestPageState extends State<RequestPage> {
                           AnimatedContainer(
                             duration: Duration(milliseconds: 500),
                             curve: Curves.easeInOut,
-                            height: _isOther ? 60 : 0,
                             width: double.infinity,
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.only(top: _isOther ? 18 : 0),
                             child: TextField(
                               controller: _topicController,
                               decoration: InputDecoration(
@@ -268,14 +263,13 @@ class _RequestPageState extends State<RequestPage> {
                             ),
                           ),
                         //
-                        SizedBox(
-                          height: 18,
-                        ),
+
                         SizedBox(
                           height: 18,
                         ),
                         TextField(
                           maxLines: 3,
+                          maxLength: 100,
                           controller: _noteController,
                           decoration: InputDecoration(
                             focusedBorder: OutlineInputBorder(
@@ -325,45 +319,75 @@ class _RequestPageState extends State<RequestPage> {
                           height: 18,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text('select a date'),
+                            Flexible(
+                              child: RadioListTile(
+                                  value: 'Theory',
+                                  title: Text(
+                                    'Theory',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  activeColor: Color(0xFFC31DC7),
+                                  groupValue: selectedRadioButton,
+                                  selectedTileColor: Color(0xFFC31DC7),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedRadioButton = 'Theory';
+                                    });
+                                  }),
+                            ),
+                            Flexible(
+                              child: RadioListTile(
+                                  value: 'Practical',
+                                  title: Text(
+                                    'Practical',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  activeColor: Color(0xFFC31DC7),
+                                  groupValue: selectedRadioButton,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedRadioButton = 'Practical';
+                                    });
+                                  }),
+                            )
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                hrizontalCapsuleListView(),
-                SizedBox(
-                  height: 18,
-                ),
-                SizedBox(
-                  height: 60.0,
-                  child: Material(
-                    borderRadius: BorderRadius.circular(10.0),
-                    shadowColor: Colors.blueAccent,
-                    color: Color(0xFFC31DC7),
-                    elevation: 0,
-                    child: GestureDetector(
-                      onTap: () {
-                        uploadFile();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
-                        );
-                      },
-                      child: Center(
-                        child: Text(
-                          'Next',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                        SizedBox(
+                          height: 18,
                         ),
-                      ),
+                        hrizontalCapsuleListView(),
+                        SizedBox(
+                          height: 18,
+                        ),
+                        Container(
+                          height: 60.0,
+                          child: Material(
+                            borderRadius: BorderRadius.circular(10.0),
+                            shadowColor: Colors.blueAccent,
+                            color: Color(0xFFC31DC7),
+                            elevation: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                uploadFile();
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => HomeScreen(),
+                                  ),
+                                );
+                              },
+                              child: Center(
+                                child: Text(
+                                  'Next',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

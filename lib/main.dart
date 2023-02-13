@@ -21,7 +21,9 @@ class MyApp extends StatelessWidget {
       },
       debugShowCheckedModeBanner: false,
       title: 'Mentor Mind',
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark(
+        useMaterial3: true,
+      ),
       // home: const HomePage(),
     );
   }

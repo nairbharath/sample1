@@ -28,13 +28,7 @@ class _RequestedApplicantsPageState extends State<RequestedApplicantsPage> {
           .then((doc) {
         requestIDsOfUser = doc.data()!['applicants'];
       });
-    } catch (e) {
-      print(e.toString());
-    }
-
-    print("Goat all Goat Goat");
-    print(requestIDsOfUser);
-    print("Goat all Goat Goat");
+    } catch (e) {}
   }
 
   Future _handleRefresh() async {

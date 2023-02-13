@@ -14,20 +14,12 @@ import 'package:mentor_mind/utils/search_box.dart';
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
-  List<String> types = [
-    'All',
-    'Physics',
-    'Data Structure',
-    'Maths',
-    'Chemisty',
-    'ML'
-  ];
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  List<String> types = ['All', 'Physics', 'DS', 'Maths', 'Chemisty', 'ML'];
   final user = FirebaseAuth.instance.currentUser!;
   var name = '';
   var _selectedTopic = 'All';
@@ -43,11 +35,38 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void setStatus(String status) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .update({"status": status});
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // TODO: implement didChangeAppLifecycleState
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      setStatus("online");
+    } else {
+      setStatus("offline");
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    setStatus("online");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         title: Text(
           'Hello $name 👋',
@@ -56,7 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
           GestureDetector(
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => RequestPage(),
+                builder: (context) => RequestPage(
+                  subjects: types,
+                ),
               ),
             ),
             child: Icon(
@@ -106,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Expanded(
                   child: ListView.builder(
-                    itemCount: widget.types.length,
+                    itemCount: types.length,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext context, int index) {
                       return Container(
@@ -116,15 +137,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: GestureDetector(
                           onTap: () {
                             setState(() {
-                              _filtertopic = widget.types[index];
-                              print("xxxxxxxxxxxxxxxxxxxxxxxxxxx" +
-                                  _selectedTopic);
-                              _selectedTopic = widget.types[index];
+                              _selectedTopic = types[index];
+                              _filtertopic = types[index];
                             });
                           },
                           child: CategoryBoxForFilter(
                             filterTopic: _filtertopic,
-                            name: widget.types[index],
+                            name: types[index],
                           ),
                         ),
                       );

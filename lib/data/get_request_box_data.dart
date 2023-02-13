@@ -20,7 +20,6 @@ class GetRequestBoxData extends StatelessWidget {
     return FutureBuilder<DocumentSnapshot>(
         future: requests.doc(docID).get(),
         builder: (((context, snapshot) {
-          print('calling' + docID);
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: Text(''),
@@ -29,10 +28,6 @@ class GetRequestBoxData extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.done) {
             Map<String, dynamic> snap =
                 snapshot.data!.data() as Map<String, dynamic>;
-
-            print("got data");
-            print(snap);
-            print("got data");
 
             return RequestBoxWithEdit(
               dSnap: snap,

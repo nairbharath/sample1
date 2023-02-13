@@ -19,7 +19,6 @@ class GetAppliedBoxData extends StatelessWidget {
     return FutureBuilder<DocumentSnapshot>(
         future: requests.doc(docID).get(),
         builder: (((context, snapshot) {
-          print('calling' + docID);
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: Text(''),

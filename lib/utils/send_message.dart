@@ -1,5 +1,7 @@
+import 'package:emoji_selector/emoji_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 
@@ -18,7 +20,24 @@ class _SendMessageBoxState extends State<SendMessageBox> {
       child: Container(
         child: Row(
           children: [
-            Icon(CupertinoIcons.smiley),
+            GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext subcontext) {
+                      return Container(
+                        height: 300,
+                        child: EmojiSelector(
+                          withTitle: true,
+                          onSelected: (emoji) {
+                            Navigator.of(subcontext).pop(emoji);
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Icon(CupertinoIcons.smiley)),
             SizedBox(
               width: 10,
             ),
@@ -33,6 +52,15 @@ class _SendMessageBoxState extends State<SendMessageBox> {
                   color: Color(0xFF3a3f54),
                   borderRadius: BorderRadius.all(
                     Radius.circular(20),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'write message..',
+                    ),
                   ),
                 ),
               ),

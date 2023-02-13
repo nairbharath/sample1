@@ -17,9 +17,9 @@ class GetApplicantData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference requests = _firestore.collection('users');
+    CollectionReference users = _firestore.collection('users');
     return FutureBuilder<DocumentSnapshot>(
-        future: requests.doc(docID).get(),
+        future: users.doc(docID).get(),
         builder: (((context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(

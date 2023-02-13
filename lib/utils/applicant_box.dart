@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mentor_mind/screens/profilePage.dart';
 
 class ApplicantBox extends StatelessWidget {
   ApplicantBox({super.key, required this.dSnap, required this.reqDocID});
@@ -15,7 +16,7 @@ class ApplicantBox extends StatelessWidget {
     await _firestore
         .collection('requests')
         .doc(reqDocID)
-        .update({"mentor": user.uid});
+        .update({"mentor": dSnap['uid']});
   }
 
   @override
@@ -32,7 +33,11 @@ class ApplicantBox extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               GestureDetector(
-                onTap: assignMentor,
+                onTap: () {
+                  assignMentor();
+                  // Navigator.of(context).push(
+                  //     MaterialPageRoute(builder: (_) => ProfilePageNew()));
+                },
                 child: const Icon(
                   CupertinoIcons.square_arrow_right_fill,
                   color: Colors.green,
@@ -41,10 +46,6 @@ class ApplicantBox extends StatelessWidget {
               const SizedBox(
                 width: 15,
               ),
-              const Icon(
-                CupertinoIcons.xmark_circle,
-                color: Colors.red,
-              )
             ],
           ),
         ),

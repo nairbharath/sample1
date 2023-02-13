@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mentor_mind/utils/category_box_inside_req.dart';
 
 class RequestBox extends StatelessWidget {
@@ -24,13 +25,10 @@ class RequestBox extends StatelessWidget {
             Map<String, dynamic> snap =
                 snapshot.data!.data() as Map<String, dynamic>;
 
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXX');
             final Timestamp timestamp = dSnap['datetime'] as Timestamp;
             final DateTime dateTime = timestamp.toDate();
             final int difference =
                 DateTime.now().difference(dateTime).inMinutes;
-
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXX');
 
             return Padding(
               padding: const EdgeInsets.all(15.0),
@@ -86,9 +84,11 @@ class RequestBox extends StatelessWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    CategoryBoxInside(title: '12-Apr'),
+                                    CategoryBoxInside(
+                                        title:
+                                            '${dSnap["date"]}-${DateFormat("MMM").format(DateTime.now())}'),
                                     // CategoryBoxInside(title: 'Physics'),
-                                    CategoryBoxInside(title: 'Theory'),
+                                    CategoryBoxInside(title: dSnap['type']),
                                   ],
                                 ),
                                 SizedBox(
