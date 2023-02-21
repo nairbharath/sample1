@@ -7,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:mentor_mind/model/sound_player.dart';
+import 'package:mentor_mind/model/sound_recorder.dart';
 import 'package:mentor_mind/screens/group_members.dart';
 import 'package:mentor_mind/utils/reciever.dart';
 import 'package:mentor_mind/utils/send_message.dart';
@@ -34,25 +36,22 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser!;
   final TextEditingController _message = TextEditingController();
-  // late Map<String, dynamic> snap = {};
-  // Future getMentorDetails() async {
-  //   CollectionReference users = _firestore.collection('users');
-  //   FutureBuilder(
-  //     future: users.doc(widget.mentorID).get(),
-  //     builder: (((context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return const Center(
-  //           child: CircularProgressIndicator(),
-  //         );
-  //       }
+  final recorder = SoundRecorder();
+  final player = SoundPlayer();
 
-  //       if (snapshot.connectionState == ConnectionState.done) {
-  //         snap = snapshot.data!.data() as Map<String, dynamic>;
-  //       }
-  //       return const Placeholder();
-  //     })),
-  //   );
-  // }
+  @override
+  void initState() {
+    recorder.init();
+    player.init();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    player.dispose();
+    recorder.dispose();
+  }
 
   void sendMessage() async {
     Map<String, dynamic> message = {
@@ -74,7 +73,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool _isrecording = false;
+    bool _isrecording = recorder.isRecording;
     CollectionReference users = _firestore.collection('users');
 
     return ChangeNotifierProvider(
@@ -220,73 +219,6 @@ class _ChatScreenState extends State<ChatScreen> {
                             },
                           ),
                         ),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // SenderBox(message: 'Hi how are you?'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // RecieverBox(message: 'I am fine thanks ❤️'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // SenderBox(message: "I'd like to meet at 10:00 AM"),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // RecieverBox(message: 'Ofcourse!'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // SenderBox(
-                        //   message:
-                        //       'Hi how are you? Hi how are you? Hi how are you? Hi how are you?Hi how are you?',
-                        // ),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // RecieverBox(message: 'I am fine thanks ❤️'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // SenderBox(message: "I'd like to meet at 10:00 AM"),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // RecieverBox(message: 'Ofcourse!'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // SenderBox(message: 'Hi how are you?'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // RecieverBox(message: 'I am fine thanks ❤️'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // SenderBox(message: "I'd like to meet at 10:00 AM"),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // RecieverBox(message: 'Ofcourse!'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // SenderBox(message: 'Hi how are you?'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // RecieverBox(message: 'I am fine thanks ❤️'),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // SenderBox(message: "I'd like to meet at 10:00 AM"),
-                        // SizedBox(
-                        //   height: 10,
-                        // ),
-                        // RecieverBox(message: 'Ofcourse!'),
                       ],
                     ),
                   ),
@@ -295,24 +227,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Container(
                       child: Row(
                         children: [
-                          // GestureDetector(
-                          //     onTap: () {
-                          //       showModalBottomSheet(
-                          //         context: context,
-                          //         builder: (BuildContext subcontext) {
-                          //           return Container(
-                          //             height: 300,
-                          //             child: EmojiSelector(
-                          //               withTitle: true,
-                          //               onSelected: (emoji) {
-                          //                 Navigator.of(subcontext).pop(emoji);
-                          //               },
-                          //             ),
-                          //           );
-                          //         },
-                          //       );
-                          //     },
-                          //     child: Icon(CupertinoIcons.smiley)),
                           Consumer<ChatState>(
                               builder: (context, chatState, child) {
                             final color = chatState.isIconPressed
@@ -330,7 +244,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           SizedBox(
                             width: 10,
                           ),
-
                           Consumer<ChatState>(
                             builder: (context, chatState, child) {
                               final color = chatState.isIconPressed
@@ -340,8 +253,11 @@ class _ChatScreenState extends State<ChatScreen> {
                               return IconButton(
                                 icon: Icon(Icons.mic),
                                 color: color,
-                                onPressed: () {
+                                onPressed: () async {
                                   chatState.toggleIcon();
+                                  // final isRecoring =
+                                  //     await recorder.toggleRecording();
+                                  await player.togglePlay(whenFinished: () {});
                                 },
                               );
                             },
