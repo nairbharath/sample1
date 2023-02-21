@@ -1,29 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mentor_mind/screens/mentor_profile.dart';
-import 'package:mentor_mind/screens/profilePage.dart';
 import 'package:intl/intl.dart';
-import 'package:mentor_mind/screens/requested_applicants.dart';
-import 'package:mentor_mind/screens/update.dart';
+import 'package:mentor_mind/screens/chat_screen.dart';
 import 'package:mentor_mind/utils/category_box_inside_req.dart';
 
-class RequestBoxWithEdit extends StatelessWidget {
-  RequestBoxWithEdit({super.key, required this.col, required this.dSnap});
+class ChatRequestBox extends StatelessWidget {
+  ChatRequestBox({super.key, required this.col, required this.dSnap});
   Color col;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   var dSnap;
+
+  String chatRoomID(String user1, String user2) {
+    if (user1[0].toLowerCase().codeUnits[0] >
+        user2[0].toLowerCase().codeUnits[0]) {
+      return "$user1$user2";
+    } else {
+      return "$user2$user1";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-    final user = FirebaseAuth.instance.currentUser!;
     CollectionReference users = _firestore.collection('users');
-    final Timestamp timestamp = dSnap['datetime'] as Timestamp;
-    final DateTime dateTime = timestamp.toDate();
-    final int difference = DateTime.now().difference(dateTime).inMinutes;
-    return FutureBuilder(
-        future: users.doc(user.uid).get(),
+    return FutureBuilder<DocumentSnapshot>(
+        future: users.doc(dSnap['uid']).get(),
         builder: (((context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -33,32 +34,31 @@ class RequestBoxWithEdit extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.done) {
             Map<String, dynamic> snap =
                 snapshot.data!.data() as Map<String, dynamic>;
-            return Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (dSnap['mentor'] == '' || dSnap['mentor'] == null) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => RequestedApplicantsPage(
-                              requestID: dSnap['requestID'],
-                            ),
-                          ),
-                        );
-                      } else {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ProfilePageNew(
-                              mentorID: dSnap['mentor'],
-                              requestID: dSnap['requestID'],
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    child: Container(
+
+            final Timestamp timestamp = dSnap['datetime'] as Timestamp;
+            final DateTime dateTime = timestamp.toDate();
+            final int difference =
+                DateTime.now().difference(dateTime).inMinutes;
+
+            return GestureDetector(
+              onTap: () {
+                String roomID = chatRoomID(dSnap['mentor'], dSnap['uid']);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ChatScreen(
+                      admin: 0,
+                      requestID: '',
+                      roomID: roomID,
+                      mentorID: dSnap['mentor'],
+                    ),
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Stack(
+                  children: [
+                    Container(
                       decoration: BoxDecoration(
                         color: col,
                         borderRadius: BorderRadius.circular(20),
@@ -176,46 +176,12 @@ class RequestBoxWithEdit extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return UpdateRequestDetails();
-                            },
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 40,
-                        width: 70,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Icon(CupertinoIcons.pencil),
-                            Text('Edit'),
-                          ],
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
-                          ),
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }
-          return Container();
+          return CircularProgressIndicator();
         })));
   }
 }

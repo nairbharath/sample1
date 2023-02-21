@@ -20,15 +20,10 @@ class _RequestSliderState extends State<RequestSlider> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future getRequests() async {
-    setState(() {
-      requests = [];
-    });
     await _firestore
         .collection('requests')
         .get()
-        .then((value) => value.docs.forEach((element) {
-              requests.add(element);
-            }));
+        .then((value) => value.docs.forEach((element) {}));
   }
 
   Future _handleRefresh() async {
@@ -37,8 +32,9 @@ class _RequestSliderState extends State<RequestSlider> {
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference requests = _firestore.collection('requests');
     return FutureBuilder(
-      future: getRequests(),
+      future: requests.get(),
       builder: ((context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -47,8 +43,9 @@ class _RequestSliderState extends State<RequestSlider> {
           );
         } else {
           if (snapshot.connectionState == ConnectionState.done) {
-            requests.forEach((element) {
-              print('---- ' + element['topic']);
+            List<dynamic> requests = [];
+            snapshot.data!.docs.forEach((element) {
+              requests.add(element.data());
             });
             return Expanded(
               child: ListView.builder(

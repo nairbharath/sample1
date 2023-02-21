@@ -7,14 +7,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:mentor_mind/screens/group_members.dart';
 import 'package:mentor_mind/utils/reciever.dart';
 import 'package:mentor_mind/utils/send_message.dart';
 import 'package:mentor_mind/utils/sender.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, required this.roomID, required this.mentorID});
+  const ChatScreen(
+      {super.key,
+      required this.roomID,
+      required this.mentorID,
+      required this.requestID,
+      required this.admin});
   final String roomID;
+  final String requestID;
   final String mentorID;
+  final int admin;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -130,6 +138,27 @@ class _ChatScreenState extends State<ChatScreen> {
                     ],
                   ),
                   centerTitle: true,
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        right: 8.0,
+                      ),
+                      child: widget.admin == 1
+                          ? GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) => GroupMembers(
+                                          roomID: widget.roomID,
+                                          requestID: widget.requestID,
+                                        )));
+                              },
+                              child: Icon(
+                                CupertinoIcons.person_add,
+                              ),
+                            )
+                          : Container(),
+                    )
+                  ],
                 ),
                 body: SingleChildScrollView(
                   child: Column(

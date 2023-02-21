@@ -8,8 +8,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mentor_mind/screens/chat_screen.dart';
 
 class ProfilePageNew extends StatefulWidget {
-  ProfilePageNew({super.key, required this.mentorID});
+  ProfilePageNew({super.key, required this.mentorID, this.requestID = ''});
   final String mentorID;
+  final String requestID;
 
   @override
   State<ProfilePageNew> createState() => _ProfilePageNewState();
@@ -174,6 +175,8 @@ class _ProfilePageNewState extends State<ProfilePageNew> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => ChatScreen(
+                              admin: 1,
+                              requestID: widget.requestID,
                               roomID: roomID,
                               mentorID: widget.mentorID,
                             ),
