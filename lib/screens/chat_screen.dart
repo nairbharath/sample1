@@ -11,6 +11,8 @@ import 'package:mentor_mind/screens/group_members.dart';
 import 'package:mentor_mind/utils/reciever.dart';
 import 'package:mentor_mind/utils/send_message.dart';
 import 'package:mentor_mind/utils/sender.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen(
@@ -72,281 +74,342 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool _isrecording = false;
     CollectionReference users = _firestore.collection('users');
 
-    return FutureBuilder(
-      future: users.doc(widget.mentorID).get(),
-      builder: (((context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: Text(''),
-          );
-        }
+    return ChangeNotifierProvider(
+      create: (_) => ChatState(),
+      child: FutureBuilder(
+        future: users.doc(widget.mentorID).get(),
+        builder: (((context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: Text(''),
+            );
+          }
 
-        if (snapshot.connectionState == ConnectionState.done) {
-          Map<String, dynamic> snap =
-              snapshot.data!.data() as Map<String, dynamic>;
-          return GestureDetector(
-            onTap: () {
-              FocusScopeNode currentFocus = FocusScope.of(context);
-              if (!currentFocus.hasPrimaryFocus) {
-                currentFocus.unfocus();
-              }
-            },
-            child: Scaffold(
-              body: Scaffold(
-                backgroundColor: Colors.black,
-                appBar: AppBar(
+          if (snapshot.connectionState == ConnectionState.done) {
+            Map<String, dynamic> snap =
+                snapshot.data!.data() as Map<String, dynamic>;
+            return GestureDetector(
+              onTap: () {
+                FocusScopeNode currentFocus = FocusScope.of(context);
+                if (!currentFocus.hasPrimaryFocus) {
+                  currentFocus.unfocus();
+                }
+              },
+              child: Scaffold(
+                body: Scaffold(
                   backgroundColor: Colors.black,
-                  leading: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Icon(CupertinoIcons.back)),
-                  title: Row(
-                    children: [
-                      snap['status'] == 'online'
-                          ? Container(
-                              height: 10,
-                              width: 10,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.green,
+                  appBar: AppBar(
+                    backgroundColor: Colors.black,
+                    leading: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Icon(CupertinoIcons.back)),
+                    title: Row(
+                      children: [
+                        snap['status'] == 'online'
+                            ? Container(
+                                height: 10,
+                                width: 10,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.green,
+                                ),
+                              )
+                            : Container(
+                                height: 10,
+                                width: 10,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.red,
+                                ),
                               ),
-                            )
-                          : Container(
-                              height: 10,
-                              width: 10,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.red,
-                              ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          snap['name'],
+                          style: GoogleFonts.getFont(
+                            'Noto Sans Display',
+                            textStyle: TextStyle(
+                              fontSize: 20,
+                              letterSpacing: .5,
                             ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        snap['name'],
-                        style: GoogleFonts.getFont(
-                          'Noto Sans Display',
-                          textStyle: TextStyle(
-                            fontSize: 20,
-                            letterSpacing: .5,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  centerTitle: true,
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 8.0,
-                      ),
-                      child: widget.admin == 1
-                          ? GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (_) => GroupMembers(
-                                          roomID: widget.roomID,
-                                          requestID: widget.requestID,
-                                        )));
-                              },
-                              child: Icon(
-                                CupertinoIcons.person_add,
-                              ),
-                            )
-                          : Container(),
-                    )
-                  ],
-                ),
-                body: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Container(
-                        height: MediaQuery.of(context).size.height - 150,
-                        child: StreamBuilder<QuerySnapshot>(
-                          stream: _firestore
-                              .collection('chats')
-                              .doc(widget.roomID)
-                              .collection('messages')
-                              .orderBy("time", descending: false)
-                              .snapshots(),
-                          builder:
-                              (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.data != null) {
-                              return ListView.builder(
-                                  itemCount: snapshot.data.docs.length,
-                                  itemBuilder: (context, index) {
-                                    Map<String, dynamic> snap =
-                                        snapshot.data.docs[index].data()
-                                            as Map<String, dynamic>;
-                                    if (snap['by'] == user.uid) {
-                                      return RecieverBox(
-                                          message: snap['message']);
-                                    } else {
-                                      return SenderBox(
-                                          message: snap['message']);
-                                    }
-                                  });
-                            } else {
-                              return Center(
-                                child: LoadingAnimationWidget.waveDots(
-                                    color: Colors.white, size: 40),
-                              );
+                      ],
+                    ),
+                    centerTitle: true,
+                    actions: [
+                      GestureDetector(
+                          onTap: () async {
+                            final String phoneNumber = '1234567890'.trim();
+                            final Uri phoneCall =
+                                Uri(scheme: 'tel', path: phoneNumber);
+                            try {
+                              if (await canLaunch(phoneCall.toString())) {
+                                await launch(phoneCall.toString());
+                              }
+                            } catch (e) {
+                              print(e.toString());
                             }
                           },
-                        ),
+                          child: Icon(Icons.call)),
+                      SizedBox(
+                        width: 20,
                       ),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SenderBox(message: 'Hi how are you?'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // RecieverBox(message: 'I am fine thanks ❤️'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SenderBox(message: "I'd like to meet at 10:00 AM"),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // RecieverBox(message: 'Ofcourse!'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SenderBox(
-                      //   message:
-                      //       'Hi how are you? Hi how are you? Hi how are you? Hi how are you?Hi how are you?',
-                      // ),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // RecieverBox(message: 'I am fine thanks ❤️'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SenderBox(message: "I'd like to meet at 10:00 AM"),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // RecieverBox(message: 'Ofcourse!'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SenderBox(message: 'Hi how are you?'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // RecieverBox(message: 'I am fine thanks ❤️'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SenderBox(message: "I'd like to meet at 10:00 AM"),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // RecieverBox(message: 'Ofcourse!'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SenderBox(message: 'Hi how are you?'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // RecieverBox(message: 'I am fine thanks ❤️'),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // SenderBox(message: "I'd like to meet at 10:00 AM"),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      // RecieverBox(message: 'Ofcourse!'),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 8.0,
+                        ),
+                        child: widget.admin == 1
+                            ? GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) => GroupMembers(
+                                            roomID: widget.roomID,
+                                            requestID: widget.requestID,
+                                          )));
+                                },
+                                child: Icon(
+                                  CupertinoIcons.person_add,
+                                ),
+                              )
+                            : Container(),
+                      )
                     ],
                   ),
-                ),
-                bottomNavigationBar: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    child: Row(
+                  body: SingleChildScrollView(
+                    child: Column(
                       children: [
-                        GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext subcontext) {
-                                  return Container(
-                                    height: 300,
-                                    child: EmojiSelector(
-                                      withTitle: true,
-                                      onSelected: (emoji) {
-                                        Navigator.of(subcontext).pop(emoji);
-                                      },
-                                    ),
-                                  );
+                        Container(
+                          height: MediaQuery.of(context).size.height - 150,
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: _firestore
+                                .collection('chats')
+                                .doc(widget.roomID)
+                                .collection('messages')
+                                .orderBy("time", descending: false)
+                                .snapshots(),
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
+                              if (snapshot.data != null) {
+                                return ListView.builder(
+                                    itemCount: snapshot.data.docs.length,
+                                    itemBuilder: (context, index) {
+                                      Map<String, dynamic> snap =
+                                          snapshot.data.docs[index].data()
+                                              as Map<String, dynamic>;
+                                      if (snap['by'] == user.uid) {
+                                        return RecieverBox(
+                                            message: snap['message']);
+                                      } else {
+                                        return SenderBox(
+                                            message: snap['message']);
+                                      }
+                                    });
+                              } else {
+                                return Center(
+                                  child: LoadingAnimationWidget.waveDots(
+                                      color: Colors.white, size: 40),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // SenderBox(message: 'Hi how are you?'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // RecieverBox(message: 'I am fine thanks ❤️'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // SenderBox(message: "I'd like to meet at 10:00 AM"),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // RecieverBox(message: 'Ofcourse!'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // SenderBox(
+                        //   message:
+                        //       'Hi how are you? Hi how are you? Hi how are you? Hi how are you?Hi how are you?',
+                        // ),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // RecieverBox(message: 'I am fine thanks ❤️'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // SenderBox(message: "I'd like to meet at 10:00 AM"),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // RecieverBox(message: 'Ofcourse!'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // SenderBox(message: 'Hi how are you?'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // RecieverBox(message: 'I am fine thanks ❤️'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // SenderBox(message: "I'd like to meet at 10:00 AM"),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // RecieverBox(message: 'Ofcourse!'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // SenderBox(message: 'Hi how are you?'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // RecieverBox(message: 'I am fine thanks ❤️'),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // SenderBox(message: "I'd like to meet at 10:00 AM"),
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        // RecieverBox(message: 'Ofcourse!'),
+                      ],
+                    ),
+                  ),
+                  bottomNavigationBar: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      child: Row(
+                        children: [
+                          // GestureDetector(
+                          //     onTap: () {
+                          //       showModalBottomSheet(
+                          //         context: context,
+                          //         builder: (BuildContext subcontext) {
+                          //           return Container(
+                          //             height: 300,
+                          //             child: EmojiSelector(
+                          //               withTitle: true,
+                          //               onSelected: (emoji) {
+                          //                 Navigator.of(subcontext).pop(emoji);
+                          //               },
+                          //             ),
+                          //           );
+                          //         },
+                          //       );
+                          //     },
+                          //     child: Icon(CupertinoIcons.smiley)),
+                          Consumer<ChatState>(
+                              builder: (context, chatState, child) {
+                            final color = chatState.isIconPressed
+                                ? Colors.green
+                                : Colors.transparent;
+                            return Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: color,
+                              ),
+                            );
+                          }),
+                          SizedBox(
+                            width: 10,
+                          ),
+
+                          Consumer<ChatState>(
+                            builder: (context, chatState, child) {
+                              final color = chatState.isIconPressed
+                                  ? Colors.blue
+                                  : Colors.grey;
+
+                              return IconButton(
+                                icon: Icon(Icons.mic),
+                                color: color,
+                                onPressed: () {
+                                  chatState.toggleIcon();
                                 },
                               );
                             },
-                            child: Icon(CupertinoIcons.smiley)),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Icon(CupertinoIcons.mic_fill),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF3a3f54),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Color(0xFF3a3f54),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
+                                ),
                               ),
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: TextField(
-                                controller: _message,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'write message..',
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: TextField(
+                                  controller: _message,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'write message..',
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: sendMessage,
-                          child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xFF6a65fd),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Icon(
-                                  CupertinoIcons.rocket,
+                          SizedBox(
+                            width: 10,
+                          ),
+                          GestureDetector(
+                            onTap: sendMessage,
+                            child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xFF6a65fd),
                                 ),
-                              )),
-                        ),
-                      ],
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Icon(
+                                    CupertinoIcons.rocket,
+                                  ),
+                                )),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          );
-        }
-        return const Placeholder();
-      })),
+            );
+          }
+          return const Placeholder();
+        })),
+      ),
     );
+  }
+}
+
+class ChatState extends ChangeNotifier {
+  bool _isIconPressed = false;
+
+  bool get isIconPressed => _isIconPressed;
+
+  void toggleIcon() {
+    _isIconPressed = !_isIconPressed;
+    notifyListeners();
   }
 }
