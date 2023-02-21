@@ -17,10 +17,7 @@ class SoundPlayer {
   }
 
   Future _play(VoidCallback whenFinished) async {
-    await _soundPlayer!.startPlayer(
-      fromURI: pathToSaveAudio,
-      whenFinished: whenFinished,
-    );
+    await _soundPlayer!.startPlayer();
   }
 
   Future _stop() async {

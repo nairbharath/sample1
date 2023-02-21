@@ -1,20 +1,27 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:io';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_selector/emoji_selector.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mentor_mind/model/sound_player.dart';
 import 'package:mentor_mind/model/sound_recorder.dart';
+import 'package:mentor_mind/model/storage.dart';
+import 'package:mentor_mind/model/upload.dart';
 import 'package:mentor_mind/screens/group_members.dart';
 import 'package:mentor_mind/utils/reciever.dart';
 import 'package:mentor_mind/utils/send_message.dart';
 import 'package:mentor_mind/utils/sender.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen(
@@ -38,6 +45,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _message = TextEditingController();
   final recorder = SoundRecorder();
   final player = SoundPlayer();
+  final audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -53,10 +61,57 @@ class _ChatScreenState extends State<ChatScreen> {
     recorder.dispose();
   }
 
+  Future uploadVoice() async {
+    int c = 0;
+    UploadTask? task;
+    print(
+        '------------------------------------starting upppppppppppppppppppppp-----------------');
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    final user = FirebaseAuth.instance.currentUser!;
+    String voiceID = const Uuid().v1();
+
+    final file = File('/data/user/0/com.example.mentor_mind/cache/audio.aac');
+    final destination = 'voices/$voiceID';
+    print('checking for voice' + file.path);
+    if (file.existsSync()) {
+      print("exists: ");
+      print(destination);
+      print(file.path);
+      task = FirebaseApi.uploadFile(destination, file);
+      final snapshot = await task!.whenComplete(() {});
+      final urlDownload = await snapshot.ref.getDownloadURL();
+      c += 1;
+      print(urlDownload);
+      print(c);
+      await sendVoice(urlDownload);
+    } else {
+      print("does not exist: ");
+    }
+  }
+
   void sendMessage() async {
     Map<String, dynamic> message = {
       "by": user.uid,
       "message": _message.text,
+      "time": DateTime.now(),
+    };
+    try {
+      await _firestore
+          .collection('chats')
+          .doc(widget.roomID)
+          .collection('messages')
+          .add(message);
+    } catch (e) {
+      print(e.toString());
+    }
+    _message.clear();
+  }
+
+  Future sendVoice(String url) async {
+    Map<String, dynamic> message = {
+      "by": user.uid,
+      "url": url,
+      "type": 'voice',
       "time": DateTime.now(),
     };
     try {
@@ -255,9 +310,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                 color: color,
                                 onPressed: () async {
                                   chatState.toggleIcon();
-                                  // final isRecoring =
-                                  //     await recorder.toggleRecording();
-                                  await player.togglePlay(whenFinished: () {});
+                                  final isRecoring =
+                                      await recorder.toggleRecording();
+                                  // await player.togglePlay(whenFinished: () {});
+                                  // audioPlayer.play(UrlSource(
+                                  //     'https://firebasestorage.googleapis.com/v0/b/mentor-mind-235df.appspot.com/o/events%2Fcat?alt=media&token=136d61f2-03c0-4ade-9bf2-12fb7d50b52d'));
                                 },
                               );
                             },
@@ -291,7 +348,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             width: 10,
                           ),
                           GestureDetector(
-                            onTap: sendMessage,
+                            onTap: () {
+                              if (!_message.text.isEmpty) sendMessage();
+                              uploadVoice();
+                            },
                             child: Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,

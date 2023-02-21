@@ -1,8 +1,6 @@
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-final pathToSaveAudio = 'audio.aac';
-
 class SoundRecorder {
   FlutterSoundRecorder? _audioRecorder;
   bool _isrecorderinitialized = false;
@@ -29,7 +27,7 @@ class SoundRecorder {
   Future _record() async {
     if (!_isrecorderinitialized) return;
     await _audioRecorder!.startRecorder(
-      toFile: pathToSaveAudio,
+      toFile: '/data/user/0/com.example.mentor_mind/cache/audio.aac',
     );
   }
 
