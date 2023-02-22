@@ -52,51 +52,24 @@ class _RequestSliderState extends State<RequestSlider> {
                 physics: BouncingScrollPhysics(),
                 itemCount: requests.length,
                 itemBuilder: (BuildContext context, int index) {
-                  print(widget.selectedTopic.toLowerCase() +
-                      " with " +
-                      requests[index]['topic'].toString().toLowerCase());
-                  if (widget.selectedTopic == '' ||
-                      widget.selectedTopic.toLowerCase() ==
-                          'All'.toLowerCase()) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => Description(
-                              dSnap: requests[index],
-                            ),
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => Description(
+                            dSnap: requests[index],
                           ),
-                        );
-                      },
-                      child: RequestBox(
-                        dSnap: requests[index],
-                        col: Colors.primaries[Random().nextInt(
-                          Colors.primaries.length,
-                        )],
-                      ),
-                    );
-                  } else {
-                    if (requests[index]['topic'].toString().toLowerCase() ==
-                        widget.selectedTopic.toLowerCase()) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => Description(
-                                dSnap: requests[index],
-                              ),
-                            ),
-                          );
-                        },
-                        child: RequestBox(
-                          dSnap: requests[index],
-                          col: Colors.primaries[Random().nextInt(
-                            Colors.primaries.length,
-                          )],
                         ),
                       );
-                    }
-                  }
+                    },
+                    child: RequestBox(
+                      type: widget.selectedTopic,
+                      dSnap: requests[index],
+                      col: Colors.primaries[Random().nextInt(
+                        Colors.primaries.length,
+                      )],
+                    ),
+                  );
                 },
               ),
             );

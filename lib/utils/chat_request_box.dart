@@ -155,12 +155,14 @@ class ChatRequestBox extends StatelessWidget {
                                             ? Text(
                                                 'Posted ${difference.toInt()} minutes ago',
                                                 style: TextStyle(
-                                                    color: Colors.black),
+                                                  color: Colors.black,
+                                                ),
                                               )
                                             : Text(
                                                 'Posted ${(difference / 30).toInt()} hours ago',
                                                 style: TextStyle(
-                                                    color: Colors.black),
+                                                  color: Colors.black,
+                                                ),
                                               )
                                       ],
                                     ),

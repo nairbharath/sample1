@@ -78,6 +78,7 @@ class _DescriptionState extends State<Description> {
         child: Column(
           children: [
             RequestBox(
+              type: '',
               dSnap: widget.dSnap,
               col: Colors.primaries[Random().nextInt(
                 Colors.primaries.length,
