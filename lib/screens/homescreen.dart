@@ -25,9 +25,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<String> types = ['All', 'Physics', 'DS', 'Maths', 'Chemisty', 'ML'];
   final user = FirebaseAuth.instance.currentUser!;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late String _selectedTopic;
+  late String _filtertopic;
+
   bool _showIcon = false;
-  var _selectedTopic = 'All';
-  var _filtertopic = 'All';
 
   void setStatus(String status) async {
     await FirebaseFirestore.instance
@@ -51,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     setStatus("online");
+    _selectedTopic = types[0];
+    _filtertopic = 'All';
   }
 
   @override
@@ -144,56 +147,62 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(
                     height: 30,
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: 40,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: types.length,
-                            scrollDirection: Axis.horizontal,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Container(
-                                margin: EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedTopic = types[index];
-                                      _filtertopic = types[index];
-                                    });
-                                  },
-                                  child: CategoryBoxForFilter(
-                                    filterTopic: _filtertopic,
-                                    name: types[index],
+                  Expanded(child: StatefulBuilder(
+                    builder: (context, setState) {
+                      return Column(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: types.length,
+                                    scrollDirection: Axis.horizontal,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return Container(
+                                        margin: EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedTopic = types[index];
+                                              _filtertopic = types[index];
+                                            });
+                                          },
+                                          child: CategoryBoxForFilter(
+                                            filterTopic: _filtertopic,
+                                            name: types[index],
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
-                              );
-                            },
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        RequestSlider(
-                          selectedTopic: _selectedTopic,
-                        ),
-                      ],
-                    ),
-                  ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                RequestSlider(
+                                  selectedTopic: _selectedTopic,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  )),
                 ],
               ),
             );
