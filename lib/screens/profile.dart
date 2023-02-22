@@ -221,13 +221,13 @@ class ProfileMenu extends StatelessWidget {
 }
 
 class ProfilePic extends StatelessWidget {
-  const ProfilePic({
+  ProfilePic({
     Key? key,
     required this.name,
   }) : super(key: key);
 
   final String name;
-
+  final user = FirebaseAuth.instance.currentUser!;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -244,7 +244,7 @@ class ProfilePic extends StatelessWidget {
               width: 70,
               child: name != ''
                   ? SvgPicture.network(
-                      'https://avatars.dicebear.com/api/identicon/$name.svg',
+                      'https://avatars.dicebear.com/api/identicon/${user.uid}.svg',
                     )
                   : LoadingAnimationWidget.waveDots(
                       color: Colors.black, size: 40),

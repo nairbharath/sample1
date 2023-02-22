@@ -22,6 +22,8 @@ class AuthMethods {
           'name': name,
           'email': email,
           'uid': credential.user!.uid,
+          'rating': 0,
+          'ratingCount': 0,
         });
         result = "success";
       }

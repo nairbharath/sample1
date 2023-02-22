@@ -1,11 +1,15 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mentor_mind/screens/chat_screen.dart';
+import 'package:mentor_mind/screens/rate.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePageNew extends StatefulWidget {
   ProfilePageNew({super.key, required this.mentorID, this.requestID = ''});
@@ -98,10 +102,12 @@ class _ProfilePageNewState extends State<ProfilePageNew> {
                             child: Container(
                               margin: EdgeInsets.all(20),
                               child: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                  'https://img.freepik.com/free-photo/spring-beauty-young-beautiful-stylish-female-model-posing-against-pink-background-cross-arms_1258-87903.jpg?w=1380&t=st=1675968044~exp=1675968644~hmac=6b90c1939e6f39a365fee7ba0e4ceb1b9485b0a09e3380a5e19a46bddaf92621',
-                                ),
-                              ),
+                                  backgroundColor: Colors.white,
+                                  child: SvgPicture.network(
+                                    'https://avatars.dicebear.com/api/identicon/${widget.mentorID}.svg',
+                                    width: 75,
+                                    height: 75,
+                                  )),
                             )),
                       ),
                     ),
@@ -152,7 +158,7 @@ class _ProfilePageNewState extends State<ProfilePageNew> {
                         height: 10,
                       ),
                       Text(
-                        '4.3 out of 5.0',
+                        '${snap["rating"].toStringAsFixed(2)} out of 5.0',
                         style: GoogleFonts.getFont(
                           'Noto Sans Display',
                           textStyle: TextStyle(
@@ -204,23 +210,51 @@ class _ProfilePageNewState extends State<ProfilePageNew> {
                         shape: BoxShape.circle,
                         color: Color(0xFFeef2f5),
                       ),
-                      child: Icon(
-                        CupertinoIcons.videocam_circle_fill,
-                        color: Colors.black,
-                        size: 30,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final String phoneNumber = '1234567890'.trim();
+                          final Uri phoneCall =
+                              Uri(scheme: 'tel', path: phoneNumber);
+                          try {
+                            if (await canLaunch(phoneCall.toString())) {
+                              await launch(phoneCall.toString());
+                            }
+                          } catch (e) {
+                            print(e.toString());
+                          }
+                        },
+                        child: Icon(
+                          CupertinoIcons.phone_circle_fill,
+                          color: Colors.black,
+                          size: 30,
+                        ),
                       ),
                     ),
-                    Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFFFFC4DD),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.mic_circle_fill,
-                        color: Colors.black,
-                        size: 30,
+                    GestureDetector(
+                      onTap: () {
+                        String roomID = chatRoomID(user.uid, widget.mentorID);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => Rating(
+                              mentorID: widget.mentorID,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 60,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFFFC4DD),
+                        ),
+                        child: Center(
+                          child: FaIcon(
+                            FontAwesomeIcons.creditCard,
+                            color: Colors.black,
+                            size: 22,
+                          ),
+                        ),
                       ),
                     ),
                   ],

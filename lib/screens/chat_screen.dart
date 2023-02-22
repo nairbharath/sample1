@@ -2,9 +2,7 @@
 
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emoji_selector/emoji_selector.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,10 +12,8 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mentor_mind/model/sound_player.dart';
 import 'package:mentor_mind/model/sound_recorder.dart';
 import 'package:mentor_mind/model/storage.dart';
-import 'package:mentor_mind/model/upload.dart';
 import 'package:mentor_mind/screens/group_members.dart';
 import 'package:mentor_mind/utils/reciever.dart';
-import 'package:mentor_mind/utils/send_message.dart';
 import 'package:mentor_mind/utils/sender.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -45,7 +41,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _message = TextEditingController();
   final recorder = SoundRecorder();
   final player = SoundPlayer();
-  final audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -93,6 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
     Map<String, dynamic> message = {
       "by": user.uid,
       "message": _message.text,
+      "type": 'text',
       "time": DateTime.now(),
     };
     try {
@@ -110,7 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future sendVoice(String url) async {
     Map<String, dynamic> message = {
       "by": user.uid,
-      "url": url,
+      "message": url,
       "type": 'voice',
       "time": DateTime.now(),
     };
@@ -198,20 +194,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     centerTitle: true,
                     actions: [
-                      GestureDetector(
-                          onTap: () async {
-                            final String phoneNumber = '1234567890'.trim();
-                            final Uri phoneCall =
-                                Uri(scheme: 'tel', path: phoneNumber);
-                            try {
-                              if (await canLaunch(phoneCall.toString())) {
-                                await launch(phoneCall.toString());
-                              }
-                            } catch (e) {
-                              print(e.toString());
-                            }
-                          },
-                          child: Icon(Icons.call)),
                       SizedBox(
                         width: 20,
                       ),
@@ -259,9 +241,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                               as Map<String, dynamic>;
                                       if (snap['by'] == user.uid) {
                                         return RecieverBox(
+                                            type: snap['type'],
                                             message: snap['message']);
                                       } else {
                                         return SenderBox(
+                                            uid: snap['by'],
+                                            type: snap['type'],
                                             message: snap['message']);
                                       }
                                     });
@@ -313,8 +298,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                   final isRecoring =
                                       await recorder.toggleRecording();
                                   // await player.togglePlay(whenFinished: () {});
-                                  // audioPlayer.play(UrlSource(
-                                  //     'https://firebasestorage.googleapis.com/v0/b/mentor-mind-235df.appspot.com/o/events%2Fcat?alt=media&token=136d61f2-03c0-4ade-9bf2-12fb7d50b52d'));
                                 },
                               );
                             },
@@ -349,8 +332,11 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              if (!_message.text.isEmpty) sendMessage();
-                              uploadVoice();
+                              if (!_message.text.isEmpty) {
+                                sendMessage();
+                              } else {
+                                uploadVoice();
+                              }
                             },
                             child: Container(
                                 decoration: BoxDecoration(
