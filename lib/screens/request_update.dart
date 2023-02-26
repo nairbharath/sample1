@@ -10,51 +10,54 @@ import 'package:mentor_mind/screens/homescreen.dart';
 import 'package:uuid/uuid.dart';
 import '../utils/date_utils.dart' as date_util;
 
-class RequestPage extends StatefulWidget {
-  RequestPage({Key? key, required this.subjects});
+class RequestUpadatePage extends StatefulWidget {
+  RequestUpadatePage({Key? key, required this.subjects, required this.dSnap});
   List<String> subjects;
+  var dSnap;
 
   @override
-  State<RequestPage> createState() => _RequestPageState();
+  State<RequestUpadatePage> createState() => _RequestUpadatePageState();
 }
 
-class _RequestPageState extends State<RequestPage> {
-  Future uploadFile() async {
+class _RequestUpadatePageState extends State<RequestUpadatePage> {
+  Future updateFile() async {
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
     final user = FirebaseAuth.instance.currentUser!;
-    String requestID = const Uuid().v1();
+    // String requestID = const Uuid().v1();
     DocumentSnapshot userSnapshot =
         await _firestore.collection('users').doc(user.uid).get();
     Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
     String name = userData['name'];
-
     Request request = Request(
       topic: _selectedSubject == 'Others'
           ? _topicController.text
           : _selectedSubject,
       description: _noteController.text,
       uid: user.uid,
+      name: name,
       date: date.toString(),
       type: selectedRadioButton,
       amount: _amountController.text,
-      requestID: requestID,
-      name: name,
+      requestID: widget.dSnap['requestID'],
       datetime: DateTime.now(),
     );
 
     try {
-      _firestore.collection('requests').doc(requestID).set(request.toJson());
+      _firestore
+          .collection('requests')
+          .doc(widget.dSnap['requestID'])
+          .update(request.toJson());
     } catch (e) {
       print(e.toString());
     }
 
-    try {
-      _firestore.collection('users').doc(user.uid).update({
-        'requests': FieldValue.arrayUnion([requestID])
-      });
-    } catch (e) {
-      print(e.toString());
-    }
+    // try {
+    //   _firestore.collection('users').doc(user.uid).update({
+    //     'requests': FieldValue.arrayUnion([requestID])
+    //   });
+    // } catch (e) {
+    //   print(e.toString());
+    // }
   }
 
   int date = DateTime.now().day;
@@ -74,6 +77,8 @@ class _RequestPageState extends State<RequestPage> {
 
   @override
   void initState() {
+    widget.subjects.add('Others');
+    widget.subjects.remove('All');
     currentMonthList = date_util.DateUtils.daysInMonth(currentDateTime);
     currentMonthList.sort((a, b) => a.day.compareTo(b.day));
     currentMonthList = currentMonthList.toSet().toList();
@@ -182,6 +187,8 @@ class _RequestPageState extends State<RequestPage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    print("xxxxxxxxx");
+    print(widget.dSnap['description']);
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
@@ -211,6 +218,7 @@ class _RequestPageState extends State<RequestPage> {
 
                         //
                         DropdownSearch<String>(
+                          selectedItem: widget.dSnap['subject'],
                           popupProps: PopupProps.menu(
                             showSearchBox: true,
                             showSelectedItems: true,
@@ -275,6 +283,7 @@ class _RequestPageState extends State<RequestPage> {
                           maxLength: 100,
                           controller: _noteController,
                           decoration: InputDecoration(
+                            hintText: widget.dSnap['description'],
                             focusedBorder: OutlineInputBorder(
                               borderSide: BorderSide(
                                 color: Color(0xFFC31DC7),
@@ -372,7 +381,7 @@ class _RequestPageState extends State<RequestPage> {
                             elevation: 0,
                             child: GestureDetector(
                               onTap: () {
-                                uploadFile();
+                                updateFile();
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
                                     builder: (context) => HomeScreen(),

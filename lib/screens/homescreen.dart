@@ -6,12 +6,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mentor_mind/data/request_slider.dart';
+import 'package:mentor_mind/model/request_model.dart';
 import 'package:mentor_mind/screens/chat_groups.dart';
 import 'package:mentor_mind/screens/chat_requests.dart';
 import 'package:mentor_mind/screens/profile.dart';
 import 'package:mentor_mind/screens/request.dart';
 import 'package:mentor_mind/utils/category_box.dart';
 import 'package:mentor_mind/utils/category_box_for_filter.dart';
+import 'package:mentor_mind/utils/request_box.dart';
 import 'package:mentor_mind/utils/search_box.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,7 +24,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  List<String> types = ['All', 'Physics', 'DS', 'Maths', 'Chemisty', 'ML'];
   final user = FirebaseAuth.instance.currentUser!;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late String _selectedTopic;
@@ -52,12 +53,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     setStatus("online");
-    _selectedTopic = types[0];
+    print('----------');
+    print(Request.types);
+
+    print('----------');
+    _selectedTopic = 'All';
     _filtertopic = 'All';
   }
 
   @override
   Widget build(BuildContext context) {
+    // _selectedTopic = 'All';
+    // _filtertopic = 'All';
+    print(Request.types);
     CollectionReference users = _firestore.collection('users');
     return FutureBuilder<DocumentSnapshot>(
         future: users.doc(user.uid).get(),
@@ -70,12 +78,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           if (snapshot.connectionState == ConnectionState.done) {
             Map<String, dynamic> snap =
                 snapshot.data!.data() as Map<String, dynamic>;
-            if (snap.containsKey('groups')) {
-              if (snap['groups'].length > 0) {
-                _showIcon = true;
-              } else {
-                _showIcon = false;
-              }
+            if (snap.containsKey('groups') && snap['groups'].length > 0) {
+              _showIcon = true;
+            } else {
+              _showIcon = false;
             }
             return Scaffold(
               backgroundColor: Colors.black,
@@ -105,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => RequestPage(
-                          subjects: types,
+                          subjects: Request.topics,
                         ),
                       ),
                     ),
@@ -147,62 +153,105 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(
                     height: 30,
                   ),
-                  Expanded(child: StatefulBuilder(
-                    builder: (context, setState) {
-                      return Column(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width,
-                            height: 40,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: ListView.builder(
-                                    itemCount: types.length,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return Container(
-                                        margin: EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedTopic = types[index];
-                                              _filtertopic = types[index];
-                                            });
-                                          },
-                                          child: CategoryBoxForFilter(
-                                            filterTopic: _filtertopic,
-                                            name: types[index],
+                  Expanded(
+                    child: StatefulBuilder(
+                      builder: (context, setState) {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: 40,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount: Request.types.length,
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return Container(
+                                          margin: EdgeInsets.symmetric(
+                                            horizontal: 10,
                                           ),
-                                        ),
-                                      );
-                                    },
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedTopic =
+                                                    Request.types[index];
+                                                _filtertopic =
+                                                    Request.types[index];
+                                              });
+                                            },
+                                            child: CategoryBoxForFilter(
+                                              filterTopic: _filtertopic,
+                                              name: Request.types[index],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: [
-                                RequestSlider(
-                                  selectedTopic: _selectedTopic,
-                                ),
-                              ],
+                            const SizedBox(
+                              height: 10,
                             ),
-                          ),
-                        ],
-                      );
-                    },
-                  )),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: FutureBuilder<QuerySnapshot>(
+                                      future: FirebaseFirestore.instance
+                                          .collection('requests')
+                                          .get(),
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<QuerySnapshot>
+                                              snapshot) {
+                                        if (snapshot.hasError) {
+                                          return Text('Something went wrong');
+                                        }
+
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return LoadingAnimationWidget
+                                              .waveDots(
+                                                  color: Colors.white,
+                                                  size: 40);
+                                        }
+
+                                        return ListView.builder(
+                                          cacheExtent: 50,
+                                          itemCount: snapshot.data!.docs.length,
+                                          itemBuilder: (context, index) {
+                                            Map<String, dynamic> data = snapshot
+                                                .data!.docs[index]
+                                                .data() as Map<String, dynamic>;
+                                            print('->' + data['topic']);
+
+                                            return RequestBox(
+                                              type: _selectedTopic,
+                                              dSnap: data,
+                                              col: Colors
+                                                  .primaries[Random().nextInt(
+                                                Colors.primaries.length,
+                                              )],
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             );

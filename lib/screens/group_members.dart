@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class GroupMembers extends StatefulWidget {
   const GroupMembers(
@@ -100,6 +101,13 @@ class _GroupMembersState extends State<GroupMembers> {
     }
   }
 
+  Future<Map<String, dynamic>> fetchUserData(String userId) async {
+    DocumentSnapshot<Map<String, dynamic>> userDataSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    Map<String, dynamic>? userData = userDataSnapshot.data();
+    return userData!;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -133,7 +141,7 @@ class _GroupMembersState extends State<GroupMembers> {
                 padding: EdgeInsets.all(15),
                 onSubmitted: (value) {
                   print("searched");
-                  onSearch(value);
+                  onSearch(value.trim());
                 },
                 borderRadius: BorderRadius.circular(10.0),
                 placeholder: 'Search names',
@@ -150,7 +158,8 @@ class _GroupMembersState extends State<GroupMembers> {
               builder: (((context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: Text('searching...'),
+                    child: LoadingAnimationWidget.waveDots(
+                        color: Colors.white, size: 40),
                   );
                 }
                 if (snapshot.connectionState == ConnectionState.done) {
@@ -172,32 +181,8 @@ class _GroupMembersState extends State<GroupMembers> {
                           Expanded(
                             child: ListView.builder(
                                 itemCount: groupMembers.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: EdgeInsets.all(6),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(groupMembers[index].toString()),
-                                        groupMembers[index].toString() ==
-                                                user.uid
-                                            ? Container()
-                                            : GestureDetector(
-                                                onTap: () {
-                                                  removeFromGroup(
-                                                      groupMembers[index]
-                                                          .toString());
-                                                },
-                                                child: Icon(
-                                                  Icons.remove,
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                      ],
-                                    ),
-                                  );
-                                }),
+                                itemBuilder: (context, index) =>
+                                    _widget(context, index, groupMembers)),
                           ),
                           Expanded(
                             child: ListView.builder(
@@ -237,5 +222,39 @@ class _GroupMembersState extends State<GroupMembers> {
         ],
       ),
     );
+  }
+
+  Widget _widget(BuildContext context, int index, List<dynamic> groupMembers) {
+    return FutureBuilder<Map<String, dynamic>>(
+        future: fetchUserData(groupMembers[index]),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container();
+          }
+          if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          }
+          final userData = snapshot.data!;
+          return Padding(
+            padding: EdgeInsets.all(6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(userData['name']),
+                groupMembers[index].toString() == user.uid
+                    ? Container()
+                    : GestureDetector(
+                        onTap: () {
+                          removeFromGroup(groupMembers[index].toString());
+                        },
+                        child: Icon(
+                          Icons.remove,
+                          color: Colors.red,
+                        ),
+                      ),
+              ],
+            ),
+          );
+        });
   }
 }

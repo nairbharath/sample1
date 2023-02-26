@@ -1,12 +1,15 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mentor_mind/model/request_model.dart';
 import 'package:mentor_mind/screens/mentor_profile.dart';
 import 'package:mentor_mind/screens/profilePage.dart';
 import 'package:intl/intl.dart';
+import 'package:mentor_mind/screens/request_update.dart';
 import 'package:mentor_mind/screens/requested_applicants.dart';
-import 'package:mentor_mind/screens/update.dart';
 import 'package:mentor_mind/utils/category_box_inside_req.dart';
 
 class RequestBoxWithEdit extends StatelessWidget {
@@ -186,7 +189,10 @@ class RequestBoxWithEdit extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) {
-                              return UpdateRequestDetails();
+                              return RequestUpadatePage(
+                                dSnap: dSnap,
+                                subjects: Request.types,
+                              );
                             },
                           ),
                         );

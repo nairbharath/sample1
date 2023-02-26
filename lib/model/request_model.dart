@@ -4,20 +4,39 @@ class Request {
   final String topic;
   final String description;
   final String uid;
-  final String subject;
+  // final String subject;
   final String date;
   final String type;
+  final String name;
   final String amount;
   final String requestID;
   final List<String> applicants;
   final String mentor;
   final DateTime datetime;
+  static List<String> types = [
+    'All',
+    'Physics',
+    'DS',
+    'Maths',
+    'Chemisty',
+    'ML',
+    'Others',
+  ];
+  static List<String> topics = [
+    'Physics',
+    'DS',
+    'Maths',
+    'Chemisty',
+    'ML',
+    'Others',
+  ];
 
   Request({
     required this.topic,
     required this.description,
+    required this.name,
     required this.uid,
-    required this.subject,
+    // required this.subject,
     required this.date,
     required this.type,
     required this.amount,
@@ -31,7 +50,7 @@ class Request {
         'topic': topic,
         'description': description,
         'uid': uid,
-        'subject': subject,
+        // 'subject': subject,
         'date': date,
         'type': type,
         'amount': amount,
@@ -45,9 +64,10 @@ class Request {
     var snapshot = documentSnapshot.data() as Map<String, dynamic>;
     return Request(
       topic: snapshot['topic'],
+      name: snapshot['name'],
       description: snapshot['description'],
       uid: snapshot['uid'],
-      subject: snapshot['subject'],
+      // subject: snapshot['subject'],
       date: snapshot['date'],
       type: snapshot['type'],
       amount: snapshot['amount'],

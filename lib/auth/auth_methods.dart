@@ -79,9 +79,7 @@ class AuthMethods {
           'likes': FieldValue.arrayUnion([uid]),
         });
       }
-    } catch (e) {
-      print(e.toString());
-    }
+    } catch (e) {}
   }
 
   Future<void> addSubEventToList(String mainEventId, String subEventId) async {
@@ -101,8 +99,6 @@ class AuthMethods {
   Future<void> resetPassword(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
-      print(e);
-    }
+    } on FirebaseAuthException catch (e) {}
   }
 }
