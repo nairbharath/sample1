@@ -121,8 +121,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         ProfileMenu(
                           press: () {
-                            Wiredash.of(context)
-                                .show(inheritMaterialTheme: true);
+                            // Wiredash.of(context)
+                            //     .show(inheritMaterialTheme: true);
                           },
                           menuText: "Help Center",
                           icon: CupertinoIcons.person_2,

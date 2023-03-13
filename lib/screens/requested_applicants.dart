@@ -18,6 +18,7 @@ class _RequestedApplicantsPageState extends State<RequestedApplicantsPage> {
   final user = FirebaseAuth.instance.currentUser!;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<dynamic> requestIDsOfUser = [];
+  String topic = '';
 
   Future getRequestedApplicantsIDs() async {
     try {
@@ -27,6 +28,8 @@ class _RequestedApplicantsPageState extends State<RequestedApplicantsPage> {
           .get()
           .then((doc) {
         requestIDsOfUser = doc.data()!['applicants'];
+        topic = doc.data()!['topic'];
+        print("topic is " + topic);
       });
     } catch (e) {}
   }
@@ -64,6 +67,7 @@ class _RequestedApplicantsPageState extends State<RequestedApplicantsPage> {
                       itemCount: requestIDsOfUser.length,
                       itemBuilder: (BuildContext context, int index) {
                         return GetApplicantData(
+                          topic: topic,
                           reqID: widget.requestID,
                           docID: requestIDsOfUser[index],
                         );

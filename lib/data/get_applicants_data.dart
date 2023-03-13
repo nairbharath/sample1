@@ -8,9 +8,14 @@ import 'package:mentor_mind/utils/applicant_box.dart';
 import 'package:mentor_mind/utils/request_box.dart';
 
 class GetApplicantData extends StatelessWidget {
-  GetApplicantData({super.key, required this.docID, required this.reqID});
+  GetApplicantData(
+      {super.key,
+      required this.docID,
+      required this.reqID,
+      required this.topic});
 
   final String docID;
+  final String topic;
   final String reqID;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser!;
@@ -31,6 +36,7 @@ class GetApplicantData extends StatelessWidget {
                 snapshot.data!.data() as Map<String, dynamic>;
 
             return ApplicantBox(
+              topic: topic,
               reqDocID: reqID,
               dSnap: snap,
             );

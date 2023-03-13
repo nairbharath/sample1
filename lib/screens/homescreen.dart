@@ -1,20 +1,17 @@
+// ignore_for_file: prefer_const_constructors
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:mentor_mind/data/request_slider.dart';
 import 'package:mentor_mind/model/request_model.dart';
-import 'package:mentor_mind/screens/chat_groups.dart';
 import 'package:mentor_mind/screens/chat_requests.dart';
+import 'package:mentor_mind/screens/description.dart';
 import 'package:mentor_mind/screens/profile.dart';
 import 'package:mentor_mind/screens/request.dart';
-import 'package:mentor_mind/utils/category_box.dart';
 import 'package:mentor_mind/utils/category_box_for_filter.dart';
 import 'package:mentor_mind/utils/request_box.dart';
-import 'package:mentor_mind/utils/search_box.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -53,10 +50,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     setStatus("online");
-    print('----------');
-    print(Request.types);
-
-    print('----------');
     _selectedTopic = 'All';
     _filtertopic = 'All';
   }
@@ -65,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     // _selectedTopic = 'All';
     // _filtertopic = 'All';
-    print(Request.types);
     CollectionReference users = _firestore.collection('users');
     return FutureBuilder<DocumentSnapshot>(
         future: users.doc(user.uid).get(),
@@ -115,8 +107,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
-                    child: Icon(
-                      CupertinoIcons.add,
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(
+                        CupertinoIcons.add,
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -171,25 +166,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       scrollDirection: Axis.horizontal,
                                       itemBuilder:
                                           (BuildContext context, int index) {
-                                        return Container(
-                                          margin: EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                _selectedTopic =
-                                                    Request.types[index];
-                                                _filtertopic =
-                                                    Request.types[index];
-                                              });
-                                            },
-                                            child: CategoryBoxForFilter(
-                                              filterTopic: _filtertopic,
-                                              name: Request.types[index],
+                                        if (Request.types[index] != 'Others') {
+                                          return Container(
+                                            margin: EdgeInsets.symmetric(
+                                              horizontal: 10,
                                             ),
-                                          ),
-                                        );
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  _selectedTopic =
+                                                      Request.types[index];
+                                                  _filtertopic =
+                                                      Request.types[index];
+                                                });
+                                              },
+                                              child: CategoryBoxForFilter(
+                                                filterTopic: _filtertopic,
+                                                name: Request.types[index],
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          return Container();
+                                        }
                                       },
                                     ),
                                   ),
@@ -223,22 +222,38 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                         }
 
                                         return ListView.builder(
+                                          physics: BouncingScrollPhysics(),
                                           cacheExtent: 50,
                                           itemCount: snapshot.data!.docs.length,
                                           itemBuilder: (context, index) {
                                             Map<String, dynamic> data = snapshot
                                                 .data!.docs[index]
                                                 .data() as Map<String, dynamic>;
-                                            print('->' + data['topic']);
 
-                                            return RequestBox(
-                                              type: _selectedTopic,
-                                              dSnap: data,
-                                              col: Colors
-                                                  .primaries[Random().nextInt(
-                                                Colors.primaries.length,
-                                              )],
-                                            );
+                                            if (data['uid'] != user.uid) {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          Description(
+                                                        dSnap: data,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: RequestBox(
+                                                  type: _selectedTopic,
+                                                  dSnap: data,
+                                                  col: Colors.primaries[
+                                                      Random().nextInt(
+                                                    Colors.primaries.length,
+                                                  )],
+                                                ),
+                                              );
+                                            } else {
+                                              return Container();
+                                            }
                                           },
                                         );
                                       },

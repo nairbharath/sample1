@@ -12,9 +12,14 @@ import 'package:mentor_mind/screens/rate.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePageNew extends StatefulWidget {
-  ProfilePageNew({super.key, required this.mentorID, this.requestID = ''});
+  ProfilePageNew(
+      {super.key,
+      required this.mentorID,
+      this.requestID = '',
+      required this.topic});
   final String mentorID;
   final String requestID;
+  final String topic;
 
   @override
   State<ProfilePageNew> createState() => _ProfilePageNewState();
@@ -236,6 +241,7 @@ class _ProfilePageNewState extends State<ProfilePageNew> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => Rating(
+                              type: widget.topic,
                               mentorID: widget.mentorID,
                             ),
                           ),

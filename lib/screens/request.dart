@@ -19,14 +19,23 @@ class RequestPage extends StatefulWidget {
 }
 
 class _RequestPageState extends State<RequestPage> {
+  final user = FirebaseAuth.instance.currentUser!;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   Future uploadFile() async {
-    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-    final user = FirebaseAuth.instance.currentUser!;
     String requestID = const Uuid().v1();
     DocumentSnapshot userSnapshot =
         await _firestore.collection('users').doc(user.uid).get();
     Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+    print("sssssssssssssssssssssssssss");
+    print(userSnapshot.data());
+
+    print("xxxxxxxxxxxxxxx");
     String name = userData['name'];
+
+    print("xxxxxxxxxxxxxxx");
+
+    print(name);
 
     Request request = Request(
       topic: _selectedSubject == 'Others'
@@ -43,6 +52,9 @@ class _RequestPageState extends State<RequestPage> {
     );
 
     try {
+      print('xxxxxxxxxx');
+      print(request.toJson());
+      print('xxxxxxxxxx');
       _firestore.collection('requests').doc(requestID).set(request.toJson());
     } catch (e) {
       print(e.toString());

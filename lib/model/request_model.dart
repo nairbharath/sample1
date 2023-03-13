@@ -58,6 +58,7 @@ class Request {
         'applicants': applicants,
         'mentor': mentor,
         'datetime': datetime,
+        'name': name,
       };
 
   static Request fromSnap(DocumentSnapshot documentSnapshot) {

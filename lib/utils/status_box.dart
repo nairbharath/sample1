@@ -46,8 +46,9 @@ class ApplicationStatusViewBox extends StatelessWidget {
                       } else {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) =>
-                                ProfilePageNew(mentorID: dSnap['mentor']),
+                            builder: (context) => ProfilePageNew(
+                                mentorID: dSnap['mentor'],
+                                topic: dSnap['topic']),
                           ),
                         );
                       }
@@ -151,6 +152,7 @@ class ApplicationStatusViewBox extends StatelessWidget {
                                                       builder: (_) =>
                                                           ProfilePageNew(
                                                         mentorID: dSnap['uid'],
+                                                        topic: dSnap['topic'],
                                                       ),
                                                     ),
                                                   );

@@ -15,7 +15,6 @@ class RequestBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('fetching...' + dSnap['uid']);
     CollectionReference users = _firestore.collection('users');
 
     final Timestamp timestamp = dSnap['datetime'] as Timestamp;
@@ -83,6 +82,7 @@ class RequestBox extends StatelessWidget {
                                   title:
                                       '${dSnap["date"]}-${DateFormat("MMM").format(DateTime.now())}'),
                               // CategoryBoxInside(title: 'Physics'),
+                              // Chip(label: Text(dSnap['type'])),
                               CategoryBoxInside(title: dSnap['type']),
                             ],
                           ),

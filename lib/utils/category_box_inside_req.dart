@@ -9,6 +9,7 @@ class CategoryBoxInside extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(left: 8),
+      // padding: EdgeInsets.all(8),
       height: 30,
       width: 60,
       decoration: BoxDecoration(
@@ -16,13 +17,19 @@ class CategoryBoxInside extends StatelessWidget {
         color: Colors.white.withOpacity(0.8),
       ),
       child: Center(
-        child: Text(
-          title,
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
-      ),
+          child: title == 'Theory'
+              ? Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                )
+              : Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                )),
     );
   }
 }
